@@ -1,7 +1,7 @@
 import React from "react";
 import { getDatabase, update, ref } from "firebase/database";
 
-const MarkTaskFinished = ({ tasks = [] }) =>{
+const MarkTaskFinished = ({ tasks = [], setMessage }) => {
   const handleFinish = (taskId) => {
     const db = getDatabase();
     const taskRef = ref(db, `assignments/${taskId}`);
@@ -9,18 +9,20 @@ const MarkTaskFinished = ({ tasks = [] }) =>{
     update(taskRef, {
       status: "finished",
     })
-      .then(() => console.log("Uppgift markerad som färdig"))
-      .catch((err) => console.error("Fel vid uppdatering:", err));
+      .then(() => {
+        setMessage?.("✅ Uppgift markerad som färdig");
+      })
+      .catch((err) => {
+        console.error("Fel vid uppdatering:", err);
+        setMessage?.("❌ Fel vid uppdatering av uppgift");
+      });
   };
 
   return (
     <div>
       {tasks.length === 0 && <p>Inga uppgifter att visa.</p>}
       {tasks.map((task) => (
-        <div
-          key={task.id}
-          style={{ border: "1px solid #ccc", margin: "1rem", padding: "1rem" }}
-        >
+        <div key={task.id} className="task-card">
           <p>
             <strong>Uppgift:</strong> {task.assignment}
           </p>

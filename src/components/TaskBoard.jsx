@@ -5,11 +5,12 @@ import { assignmentsRef, membersRef } from "../firebase/config";
 import { AssignTask } from "./AssignTask";
 import { MarkTaskFinished } from "./MarkTaskFinished";
 import { DeleteFinishedTask } from "./DeleteFinishedTask";
-import { SortFilter } from "./SortFilter"; 
+import { SortFilter } from "./SortFilter";
 
 const TaskBoard = () => {
   const [tasks, setTasks] = useState([]);
   const [members, setMembers] = useState([]);
+  const [message, setMessage] = useState(""); // 🟡 Nytt meddelande-state
 
   const [filter, setFilter] = useState({
     member: "",
@@ -52,27 +53,23 @@ const TaskBoard = () => {
 
       return matchesMember && matchesCategory;
     })
-
     .sort((a, b) => {
-        // Först: timestamp (om aktiv)
-        if (filter.sortTime) {
-          const timeCompare =
-            filter.sortTime === "asc"
-              ? a.timestamp - b.timestamp
-              : b.timestamp - a.timestamp;
-      
-          if (timeCompare !== 0) return timeCompare;
-        }
-      
-        // Sedan: titel (om aktiv)
-        if (filter.sortTitle) {
-          return filter.sortTitle === "asc"
-            ? a.assignment.localeCompare(b.assignment)
-            : b.assignment.localeCompare(a.assignment);
-        }
-      
-        return 0;
-      });
+      if (filter.sortTime) {
+        const timeCompare =
+          filter.sortTime === "asc"
+            ? a.timestamp - b.timestamp
+            : b.timestamp - a.timestamp;
+        if (timeCompare !== 0) return timeCompare;
+      }
+
+      if (filter.sortTitle) {
+        return filter.sortTitle === "asc"
+          ? a.assignment.localeCompare(b.assignment)
+          : b.assignment.localeCompare(a.assignment);
+      }
+
+      return 0;
+    });
 
   const groupedTasks = {
     new: filteredAndSortedTasks.filter((task) => task.status === "new"),
@@ -82,22 +79,37 @@ const TaskBoard = () => {
 
   return (
     <div>
-      <SortFilter filter={filter} setFilter={setFilter} /> {/* Filter UI */}
+      <SortFilter filter={filter} setFilter={setFilter} />
 
-      <div style={{ display: "flex", gap: "2rem", alignItems: "flex-start" }}>
-        <div>
+      {/* 🟢 Meddelande-ruta */}
+      {message && (
+        <div
+          style={{
+            backgroundColor: "#e6ffed",
+            border: "1px solid #b3e6c2",
+            padding: "0.75rem",
+            borderRadius: "6px",
+            marginBottom: "1rem",
+          }}
+        >
+          {message}
+        </div>
+      )}
+
+      <div className="task-board">
+        <div className="task-column">
           <h2>NEW</h2>
-          <AssignTask tasks={groupedTasks["new"]} members={members} />
+          <AssignTask tasks={groupedTasks["new"]} members={members} setMessage={setMessage} />
         </div>
 
-        <div>
+        <div className="task-column">
           <h2>IN PROGRESS</h2>
-          <MarkTaskFinished tasks={groupedTasks["in progress"]} />
+          <MarkTaskFinished tasks={groupedTasks["in progress"]} setMessage={setMessage} />
         </div>
 
-        <div>
+        <div className="task-column">
           <h2>FINISHED</h2>
-          <DeleteFinishedTask tasks={groupedTasks["finished"]} />
+          <DeleteFinishedTask tasks={groupedTasks["finished"]} setMessage={setMessage} />
         </div>
       </div>
     </div>

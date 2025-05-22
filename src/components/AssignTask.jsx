@@ -1,9 +1,7 @@
-// src/components/AssignTask.jsx
-
 import React from "react";
 import { getDatabase, update, ref } from "firebase/database";
 
-const AssignTask = ({ tasks = [], members = [] }) =>{
+const AssignTask = ({ tasks = [], members = [], setMessage }) => {
   const handleAssign = (taskId, member) => {
     const db = getDatabase();
     const taskRef = ref(db, `assignments/${taskId}`);
@@ -12,26 +10,25 @@ const AssignTask = ({ tasks = [], members = [] }) =>{
       member: member.name,
       status: "in progress",
     })
-      .then(() => console.log("Uppgift tilldelad"))
-      .catch((err) => console.error("Fel vid tilldelning:", err));
+      .then(() => {
+        setMessage?.(`✅ Uppgift tilldelad till ${member.name}`);
+      })
+      .catch((err) => {
+        console.error("Fel vid tilldelning:", err);
+        setMessage?.("❌ Fel vid tilldelning.");
+      });
   };
 
   return (
     <div>
-      {tasks.map((task) => {
+        {tasks.length === 0 && <p>Inga nya uppgifter att visa.</p>}
+        {tasks.map((task) => {
         const eligibleMembers = members.filter(
           (member) => member.role === task.category
         );
 
         return (
-          <div
-            key={task.id}
-            style={{
-              border: "1px solid #ccc",
-              margin: "1rem",
-              padding: "1rem",
-            }}
-          >
+          <div key={task.id} className="task-card">
             <p>
               <strong>Uppgift:</strong> {task.assignment}
             </p>

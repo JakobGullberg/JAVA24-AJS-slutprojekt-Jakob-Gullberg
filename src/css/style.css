@@ -1,0 +1,36 @@
+/* Grundlayout för boarden */
+.task-board {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+  
+  /* Varje kolumn (NEW, IN PROGRESS, FINISHED) */
+  .task-column {
+    flex: 1;
+    min-width: 280px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  
+  /* Uppgiftskort */
+  .task-card {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Rubriker */
+  .task-column h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: #333;
+  }
+  

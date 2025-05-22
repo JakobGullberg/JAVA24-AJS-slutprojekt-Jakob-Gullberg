@@ -1,28 +1,26 @@
 import React from "react";
 import { getDatabase, ref, remove } from "firebase/database";
 
-const DeleteFinishedTask = ({ tasks = [] }) =>{
+const DeleteFinishedTask = ({ tasks = [], setMessage }) => {
   const handleDelete = (taskId) => {
     const db = getDatabase();
     const taskRef = ref(db, `assignments/${taskId}`);
 
     remove(taskRef)
-      .then(() => console.log("Uppgift raderad"))
-      .catch((err) => console.error("Fel vid radering:", err));
+      .then(() => {
+        setMessage?.("✅ Uppgift raderad");
+      })
+      .catch((err) => {
+        console.error("Fel vid radering:", err);
+        setMessage?.("❌ Fel vid radering av uppgift");
+      });
   };
 
   return (
     <div>
       {tasks.length === 0 && <p>Inga färdiga uppgifter att visa.</p>}
       {tasks.map((task) => (
-        <div
-          key={task.id}
-          style={{
-            border: "1px solid #ccc",
-            margin: "1rem",
-            padding: "1rem",
-          }}
-        >
+        <div key={task.id} className="task-card">
           <p>
             <strong>Uppgift:</strong> {task.assignment}
           </p>
