@@ -32,4 +32,50 @@ Du kan skapa team members, lägga till uppgifter, tilldela dem och följa upp de
 
 
 - 📁 Filstruktur:
+src/
+├── components/
+│ ├── AddTask.jsx
+│ ├── AddTeamMember.jsx
+│ ├── AssignTask.jsx
+│ ├── MarkTaskFinished.jsx
+│ ├── DeleteFinishedTask.jsx
+│ ├── SortFilter.jsx
+│ ├── TaskBoard.jsx
+│ └── Modal.jsx
+├── firebase/
+│ └── config.jsx
+├── index.html
+└── main.jsx
+
+
+## 📦 Kom igång
+
+1. Klona detta repot:
+ ```bash
+ git clone [URL]
+ cd [mapp]
+
+ 2. Installera beroende
+
+- npm install
+
+3. Starta utvecklingsservern:
+
+- npm run dev
+
+
+## 🔐 Firebase Setup
+
+1. Skapa ett Firebase-projekt (via url : https://console.firebase.google.com)
+2. Aktivera Realtime Database → välj region (t.ex. europe-west1)
+3. Sätt regler till:
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+Då databasen inte kan ändras förrän man ändrat defaultvärdet "false" till "true".
+
+4. Kopiera din config till firebase/config.jsx och exportera assignmentsRef & membersRef
 
