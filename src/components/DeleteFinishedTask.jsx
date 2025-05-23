@@ -1,7 +1,8 @@
 import React from "react";
 import { getDatabase, ref, remove } from "firebase/database";
 
-const DeleteFinishedTask = ({ tasks = [], setMessage }) => {
+const DeleteFinishedTask = ({ tasks = [], setMessage, onOpenModal }) => {
+
   const handleDelete = (taskId) => {
     const db = getDatabase();
     const taskRef = ref(db, `assignments/${taskId}`);
@@ -34,6 +35,9 @@ const DeleteFinishedTask = ({ tasks = [], setMessage }) => {
             <strong>Skapad:</strong>{" "}
             {new Date(task.timestamp).toLocaleString()}
           </p>
+
+          <button onClick={() => onOpenModal?.(task)}>Redigera</button>
+
 
           <button onClick={() => handleDelete(task.id)}>Radera</button>
         </div>

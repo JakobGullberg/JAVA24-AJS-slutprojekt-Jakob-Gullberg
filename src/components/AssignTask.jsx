@@ -1,7 +1,7 @@
 import React from "react";
 import { getDatabase, update, ref } from "firebase/database";
 
-const AssignTask = ({ tasks = [], members = [], setMessage }) => {
+const AssignTask = ({ tasks = [], members = [], setMessage, onOpenModal }) => {
   const handleAssign = (taskId, member) => {
     const db = getDatabase();
     const taskRef = ref(db, `assignments/${taskId}`);
@@ -39,6 +39,9 @@ const AssignTask = ({ tasks = [], members = [], setMessage }) => {
               <strong>Skapad:</strong>{" "}
               {new Date(task.timestamp).toLocaleString()}
             </p>
+
+            <button onClick={() => onOpenModal?.(task)}>Redigera</button>
+
 
             {eligibleMembers.length > 0 ? (
               <select

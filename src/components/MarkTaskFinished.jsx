@@ -1,7 +1,7 @@
 import React from "react";
 import { getDatabase, update, ref } from "firebase/database";
 
-const MarkTaskFinished = ({ tasks = [], setMessage }) => {
+const MarkTaskFinished = ({ tasks = [], setMessage, onOpenModal }) => {
   const handleFinish = (taskId) => {
     const db = getDatabase();
     const taskRef = ref(db, `assignments/${taskId}`);
@@ -37,7 +37,11 @@ const MarkTaskFinished = ({ tasks = [], setMessage }) => {
             {new Date(task.timestamp).toLocaleString()}
           </p>
 
+
+          <button onClick={() => onOpenModal?.(task)}>Redigera</button>
           <button onClick={() => handleFinish(task.id)}>Markera som färdig</button>
+            
+
         </div>
       ))}
     </div>

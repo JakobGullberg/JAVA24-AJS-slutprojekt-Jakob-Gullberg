@@ -1,16 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { getDatabase, onValue } from "firebase/database";
+import { getDatabase, onValue, update, ref } from "firebase/database";
 import { assignmentsRef, membersRef } from "../firebase/config";
 
 import { AssignTask } from "./AssignTask";
 import { MarkTaskFinished } from "./MarkTaskFinished";
 import { DeleteFinishedTask } from "./DeleteFinishedTask";
 import { SortFilter } from "./SortFilter";
+import { Modal } from "./Modal";
 
 const TaskBoard = () => {
   const [tasks, setTasks] = useState([]);
   const [members, setMembers] = useState([]);
-  const [message, setMessage] = useState(""); // 🟡 Nytt meddelande-state
+  const [message, setMessage] = useState("");
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editMember, setEditMember] = useState("");
+
+  useEffect(() => {
+    if (!message) return;
+    const timer = setTimeout(() => {
+      setMessage("");
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [message]);
 
   const [filter, setFilter] = useState({
     member: "",
@@ -77,11 +91,45 @@ const TaskBoard = () => {
     finished: filteredAndSortedTasks.filter((task) => task.status === "finished"),
   };
 
+  const taskSections = [
+    { title: "NEW", status: "new", Component: AssignTask },
+    { title: "IN PROGRESS", status: "in progress", Component: MarkTaskFinished },
+    { title: "FINISHED", status: "finished", Component: DeleteFinishedTask },
+  ];
+
+  const handleOpenModal = (task) => {
+    setSelectedTask(task);
+    setEditTitle(task.assignment);
+    setEditCategory(task.category);
+    setEditMember(task.member || "");
+    setModalOpen(true);
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    if (!selectedTask) return;
+
+    const db = getDatabase();
+    const taskRef = ref(db, `assignments/${selectedTask.id}`);
+
+    update(taskRef, {
+      assignment: editTitle,
+      category: editCategory,
+      member: editMember,
+    })
+      .then(() => {
+        setModalOpen(false);
+        setMessage("✅ Uppgift uppdaterad!");
+      })
+      .catch(() => {
+        setMessage("❌ Kunde inte uppdatera uppgiften.");
+      });
+  };
+
   return (
     <div>
       <SortFilter filter={filter} setFilter={setFilter} />
 
-      {/* 🟢 Meddelande-ruta */}
       {message && (
         <div
           style={{
@@ -96,21 +144,58 @@ const TaskBoard = () => {
         </div>
       )}
 
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
+        {selectedTask && (
+          <form onSubmit={handleEditSubmit}>
+            <h2>Redigera uppgift</h2>
+
+            <input
+              type="text"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              placeholder="Uppgiftstitel"
+            />
+
+            <select
+              value={editCategory}
+              onChange={(e) => setEditCategory(e.target.value)}
+            >
+              <option value="ux">UX</option>
+              <option value="frontend">Frontend</option>
+              <option value="backend">Backend</option>
+            </select>
+
+            <select
+              value={editMember}
+              onChange={(e) => setEditMember(e.target.value)}
+            >
+              <option value="">Ingen</option>
+              {members
+                .filter((m) => m.role === editCategory)
+                .map((m) => (
+                  <option key={m.id} value={m.name}>
+                    {m.name}
+                  </option>
+                ))}
+            </select>
+
+            <button type="submit">Spara ändringar</button>
+          </form>
+        )}
+      </Modal>
+
       <div className="task-board">
-        <div className="task-column">
-          <h2>NEW</h2>
-          <AssignTask tasks={groupedTasks["new"]} members={members} setMessage={setMessage} />
-        </div>
-
-        <div className="task-column">
-          <h2>IN PROGRESS</h2>
-          <MarkTaskFinished tasks={groupedTasks["in progress"]} setMessage={setMessage} />
-        </div>
-
-        <div className="task-column">
-          <h2>FINISHED</h2>
-          <DeleteFinishedTask tasks={groupedTasks["finished"]} setMessage={setMessage} />
-        </div>
+        {taskSections.map(({ title, status, Component }) => (
+          <div key={status} className="task-column">
+            <h2>{title}</h2>
+            <Component
+              tasks={groupedTasks[status]}
+              members={members}
+              setMessage={setMessage}
+              onOpenModal={handleOpenModal}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );

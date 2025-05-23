@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { getDatabase, push } from "firebase/database";
 import { assignmentsRef } from "../firebase/config";
+import { Modal } from "./Modal"; 
 
 const AddTask = () => {
   const [assignment, setAssignment] = useState("");
   const [category, setCategory] = useState("ux");
   const [error, setError] = useState("");
+  const [isOpen, setIsOpen] = useState(false); // kontrollerar modalen
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -29,34 +31,41 @@ const AddTask = () => {
       .then(() => {
         setAssignment("");
         setCategory("ux");
+        setIsOpen(false); // stäng modal efter sparat
       })
       .catch(() => {
-        console.error("Firebase error:", error);
+        console.error("Firebase error");
         setError("Något gick fel vid sparandet av uppgiften.");
       });
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Lägg till uppgift</h2>
+    <>
+      <button onClick={() => setIsOpen(true)}>+ Lägg till uppgift</button>
 
-      <input
-        type="text"
-        value={assignment}
-        placeholder="Beskrivning av uppgift"
-        onChange={(e) => setAssignment(e.target.value)}
-      />
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <form onSubmit={handleSubmit}>
+          <h2>Lägg till uppgift</h2>
 
-      <select value={category} onChange={(e) => setCategory(e.target.value)}>
-        <option value="ux">UX</option>
-        <option value="frontend">Frontend</option>
-        <option value="backend">Backend</option>
-      </select>
+          <input
+            type="text"
+            value={assignment}
+            placeholder="Beskrivning av uppgift"
+            onChange={(e) => setAssignment(e.target.value)}
+          />
 
-      <button type="submit">Lägg till uppgift</button>
+          <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <option value="ux">UX</option>
+            <option value="frontend">Frontend</option>
+            <option value="backend">Backend</option>
+          </select>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </form>
+          <button type="submit">Lägg till</button>
+
+          {error && <p style={{ color: "red" }}>{error}</p>}
+        </form>
+      </Modal>
+    </>
   );
 };
 
