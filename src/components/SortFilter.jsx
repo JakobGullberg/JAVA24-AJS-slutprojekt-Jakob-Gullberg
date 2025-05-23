@@ -1,40 +1,58 @@
 import React from "react";
 
 const SortFilter = ({ filter, setFilter }) => {
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-      
-        setFilter((prev) => {
-          if (name === "sortTitle") {
-            return {
-              ...prev,
-              sortTitle: value,
-              sortTime: "", // nollställ bara på sorteringsval
-            };
-          }
-      
-          if (name === "sortTime") {
-            return {
-              ...prev,
-              sortTime: value,
-              sortTitle: "", // nollställ bara på sorteringsval
-            };
-          }
-      
-          // andra filter
-          return {
-            ...prev,
-            [name]: value,
-          };
-        });
-      };
-      
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "sortCombined") {
+      // Hantera kombinerad sortering
+      let sortTitle = "";
+      let sortTime = "";
+
+      if (value === "title-asc") sortTitle = "asc";
+      else if (value === "title-desc") sortTitle = "desc";
+      else if (value === "time-asc") sortTime = "asc";
+      else if (value === "time-desc") sortTime = "desc";
+
+      setFilter((prev) => ({
+        ...prev,
+        sortTitle,
+        sortTime,
+      }));
+
+      return;
+    }
+
+    setFilter((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const currentSortValue =
+    filter.sortTitle === "asc"
+      ? "title-asc"
+      : filter.sortTitle === "desc"
+      ? "title-desc"
+      : filter.sortTime === "asc"
+      ? "time-asc"
+      : filter.sortTime === "desc"
+      ? "time-desc"
+      : "";
 
   return (
-    <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+    <div
+      style={{
+        marginBottom: "1rem",
+        display: "flex",
+        gap: "1rem",
+        flexWrap: "wrap",
+      }}
+    >
       {/* Filter: Medlem */}
       <div>
-        <label>Filtrera medlem:</label><br />
+        <label>Filtrera medlem:</label>
+        <br />
         <input
           type="text"
           name="member"
@@ -46,8 +64,13 @@ const SortFilter = ({ filter, setFilter }) => {
 
       {/* Filter: Kategori */}
       <div>
-        <label>Filtrera kategori:</label><br />
-        <select name="category" value={filter.category} onChange={handleChange}>
+        <label>Filtrera kategori:</label>
+        <br />
+        <select
+          name="category"
+          value={filter.category}
+          onChange={handleChange}
+        >
           <option value="">Alla uppgifter</option>
           <option value="ux">UX</option>
           <option value="frontend">Frontend</option>
@@ -55,33 +78,38 @@ const SortFilter = ({ filter, setFilter }) => {
         </select>
       </div>
 
-      {/* Sortering: Datum */}
+      {/* Sammanlagd sortering */}
       <div>
-        <label>Sortera datum:</label><br />
-        <select name="sortTime" value={filter.sortTime} onChange={handleChange}>
-          <option value="">Ingen vald</option>
-          <option value="desc">Nyast först</option>
-          <option value="asc">Äldst först</option>
+        <label>Sortera:</label>
+        <br />
+        <select
+          name="sortCombined"
+          value={currentSortValue}
+          onChange={handleChange}
+        >
+          <option value="">Ingen sortering</option>
+          <option value="title-asc">Titel A → Ö</option>
+          <option value="title-desc">Titel Ö → A</option>
+          <option value="time-desc">Datum: Nyast först</option>
+          <option value="time-asc">Datum: Äldst först</option>
         </select>
       </div>
 
-      {/* Sortering: Namn */}
-      <div>
-        <label>Sortera namn:</label><br />
-        <select name="sortTitle" value={filter.sortTitle} onChange={handleChange}>
-          <option value="">Ingen vald</option>
-          <option value="asc">A → Ö</option>
-          <option value="desc">Ö → A</option>
-        </select>
-      </div>
-
-      {/* Sammanfattning av val */}
-      <div style={{ marginTop: "1rem", backgroundColor: "#f9fafb", padding: "0.5rem", borderRadius: "4px", width: "100%" }}>
+      {/* Sammanfattning */}
+      <div
+        style={{
+          marginTop: "1rem",
+          backgroundColor: "#f9fafb",
+          padding: "0.5rem",
+          borderRadius: "4px",
+          width: "100%",
+        }}
+      >
         <strong>Visar:</strong>{" "}
         {filter.category ? `Kategori: ${filter.category}` : ""}
         {filter.category && filter.member ? " + " : ""}
         {filter.member ? `Medlem: ${filter.member}` : ""}
-        {(!filter.category && !filter.member) && "Alla uppgifter"}
+        {!filter.category && !filter.member && "Alla uppgifter"}
 
         {(filter.sortTitle || filter.sortTime) && " | "}
 
@@ -91,7 +119,7 @@ const SortFilter = ({ filter, setFilter }) => {
           `${filter.sortTitle ? " + " : ""}Datum: ${
             filter.sortTime === "asc" ? "Äldst först" : "Nyast först"
           }`}
-        {(!filter.sortTitle && !filter.sortTime) && " | Ingen sortering"}
+        {!filter.sortTitle && !filter.sortTime && " | Ingen sortering"}
       </div>
 
       {/* Rensa-knapp */}
