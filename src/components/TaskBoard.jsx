@@ -59,7 +59,7 @@ const TaskBoard = () => {
       setMembers(memberList);
     });
     return ()=>{
-      membersRef.off?.();     // Kopplar bort lyssnare korrekt (Detta verkade lösa mitt problem med websockets)
+      membersRef.off?.();     // Kopplar bort lyssnare korrekt (Detta verkade lösa mitt problem med websockets, men det gjorde det ej)
       assignmentsRef.off?.();
     }
   }, []);
