@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/JakobGullberg/parcel/issues"
   },
-  "homepage": "https://github.com/JakobGullberg/parcel#readme",
+  "homepage": "https://jakobgullberg.github.io/JAVA24-AJS-slutprojekt-Jakob-Gullberg/",
   "devDependencies": {
     "del-cli": "^6.0.0",
     "parcel": "^2.14.4",
