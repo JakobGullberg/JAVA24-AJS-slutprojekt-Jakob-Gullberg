@@ -145,6 +145,8 @@ const TaskBoard = () => {
         </div>
       )}
 
+      
+
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
         {selectedTask && (
           <form onSubmit={handleEditSubmit}>

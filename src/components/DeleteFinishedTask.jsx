@@ -4,6 +4,9 @@ import { getDatabase, ref, remove } from "firebase/database";
 const DeleteFinishedTask = ({ tasks = [], setMessage, onOpenModal }) => {
 
   const handleDelete = (taskId) => {
+    const confirmDelete = window.confirm("Vill du verkligen radera denna uppgift?");
+    if (!confirmDelete) return;
+
     const db = getDatabase();
     const taskRef = ref(db, `assignments/${taskId}`);
 
