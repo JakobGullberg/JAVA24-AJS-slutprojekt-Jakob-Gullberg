@@ -64,18 +64,6 @@ const TaskBoard = () => {
     }
   }, []);
 
-  // 🔍 LÄGG DENNA STRAX EFTER
-useEffect(() => {
-  const connectedRef = ref(getDatabase(), ".info/connected");
-  onValue(connectedRef, (snap) => {
-    if (snap.val()) {
-      console.log("✅ Ansluten till Firebase");
-    } else {
-      console.warn("⚠️ Förlorad anslutning till Firebase");
-    }
-  });
-}, []);
-
   //  Filtrering + sortering i UI enligt användarens val
   const filteredAndSortedTasks = tasks
     .filter((task) => {
