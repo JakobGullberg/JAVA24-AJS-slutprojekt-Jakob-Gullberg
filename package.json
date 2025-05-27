@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JakobGullberg/parcel.git"
+    "url": "git+https://github.com/JakobGullberg/JAVA24-AJS-slutprojekt-Jakob-Gullberg.git"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/JakobGullberg/parcel/issues"
   },
-  "homepage": "https://jakobgullberg.github.io/JAVA24-AJS-slutprojekt-Jakob-Gullberg/",
+  "homepage": "https://jakobgullberg.github.io/JAVA24-AJS-slutprojekt-Jakob-Gullberg",
   "devDependencies": {
     "del-cli": "^6.0.0",
     "parcel": "^2.14.4",
