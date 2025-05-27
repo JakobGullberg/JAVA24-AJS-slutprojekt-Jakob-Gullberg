@@ -9,15 +9,19 @@ import { SortFilter } from "./SortFilter";
 import { Modal } from "./Modal";
 
 const TaskBoard = () => {
+  //  Uppgifter och användare (hämtas från databas)
   const [tasks, setTasks] = useState([]);
   const [members, setMembers] = useState([]);
-  const [message, setMessage] = useState("");
-  const [selectedTask, setSelectedTask] = useState(null);
+
+  const [message, setMessage] = useState(""); //  Tillfälligt meddelande (feedback)
+  const [selectedTask, setSelectedTask] = useState(null); //  För redigering
   const [modalOpen, setModalOpen] = useState(false);
+
   const [editTitle, setEditTitle] = useState("");
   const [editCategory, setEditCategory] = useState("");
   const [editMember, setEditMember] = useState("");
 
+  //  Visar feedback i 3 sekunder
   useEffect(() => {
     if (!message) return;
     const timer = setTimeout(() => {
@@ -26,6 +30,7 @@ const TaskBoard = () => {
     return () => clearTimeout(timer);
   }, [message]);
 
+  // Filter + sorteringslogik
   const [filter, setFilter] = useState({
     member: "",
     category: "",
@@ -34,7 +39,7 @@ const TaskBoard = () => {
   });
 
   useEffect(() => {
-    // const db = getDatabase();
+    //  WebSocket-koppling via onValue – här sker realtidslyssning
 
     const unsubscribeAssignments = onValue(assignmentsRef, (snapshot) => {
       const data = snapshot.val() || {};
@@ -54,11 +59,24 @@ const TaskBoard = () => {
       setMembers(memberList);
     });
     return ()=>{
-        unsubscribeMembers();
-        unsubscribeAssignments();
+      membersRef.off?.();     // Kopplar bort lyssnare korrekt (Detta verkade lösa mitt problem med websockets)
+      assignmentsRef.off?.();
     }
   }, []);
 
+  // 🔍 LÄGG DENNA STRAX EFTER
+useEffect(() => {
+  const connectedRef = ref(getDatabase(), ".info/connected");
+  onValue(connectedRef, (snap) => {
+    if (snap.val()) {
+      console.log("✅ Ansluten till Firebase");
+    } else {
+      console.warn("⚠️ Förlorad anslutning till Firebase");
+    }
+  });
+}, []);
+
+  //  Filtrering + sortering i UI enligt användarens val
   const filteredAndSortedTasks = tasks
     .filter((task) => {
       const matchesMember = filter.member
@@ -89,19 +107,24 @@ const TaskBoard = () => {
       return 0;
     });
 
+    //  Uppdelning i kolumner beroende på status
   const groupedTasks = {
     new: filteredAndSortedTasks.filter((task) => task.status === "new"),
     "in progress": filteredAndSortedTasks.filter((task) => task.status === "in progress"),
     finished: filteredAndSortedTasks.filter((task) => task.status === "finished"),
   };
 
+  // Vilken komponent som ska renderas för varje kolumn
   const taskSections = [
     { title: "NEW", status: "new", Component: AssignTask },
     { title: "IN PROGRESS", status: "in progress", Component: MarkTaskFinished },
     { title: "FINISHED", status: "finished", Component: DeleteFinishedTask },
   ];
+
+  //  Används för att veta om medlem ska kunna väljas i modal
   const isAssignModal = selectedTask?.status === "new";
 
+  //  Öppnar modal och fyll fälten med vald uppgiftsdata
   const handleOpenModal = (task) => {
     setSelectedTask(task);
     setEditTitle(task.assignment);
@@ -110,14 +133,14 @@ const TaskBoard = () => {
     setModalOpen(true);
   };
 
+  // Uppdaterar uppgift i Firebase
   const handleEditSubmit = (e) => {
     e.preventDefault();
     if (!selectedTask) return;
 
-    //const db = getDatabase();
-        const taskRef = child(assignmentsRef, `/${taskId}`)
+   
+      const taskRef = child(assignmentsRef, `/${selectedTask.id}`)
     
-    // const taskRef = ref(getDatabase, `assignments/${selectedTask.id}`);
 
     update(taskRef, {
       assignment: editTitle,
@@ -152,7 +175,7 @@ const TaskBoard = () => {
       )}
 
 
-
+      {/*  Modal för att redigera uppgift */}
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
         {selectedTask && (
           <form onSubmit={handleEditSubmit}>
@@ -174,7 +197,10 @@ const TaskBoard = () => {
               <option value="backend">Backend</option>
             </select>
 
+            
             {!isAssignModal && (
+              // Visar bara medlem-val om uppgiften inte är ny –
+              // nya uppgifter tilldelas först via AssignTask-kolumnen
               <select
                 value={editMember}
                 onChange={(e) => setEditMember(e.target.value)}
@@ -195,6 +221,7 @@ const TaskBoard = () => {
         )}
       </Modal>
 
+        {/*  Tre kolumner: new, in progress, finished */}
       <div className="task-board">
         {taskSections.map(({ title, status, Component }) => (
           <div key={status} className="task-column">

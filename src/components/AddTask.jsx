@@ -4,15 +4,17 @@ import { assignmentsRef } from "../firebase/config";
 import { Modal } from "./Modal"; 
 
 const AddTask = () => {
+// Lokala tillstånd för inputfält, felmeddelanden och modalens synlighet
   const [assignment, setAssignment] = useState("");
   const [category, setCategory] = useState("ux");
   const [error, setError] = useState("");
-  const [isOpen, setIsOpen] = useState(false); // kontrollerar modalen
+  const [isOpen, setIsOpen] = useState(false); // styr modalens visning
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
+     // Kontrollera att användaren inte skickar in tom uppgift
     if (!assignment.trim()) {
       setError("Du måste skriva in en uppgift.");
       return;
@@ -21,17 +23,18 @@ const AddTask = () => {
     const newTask = {
       assignment,
       category,
-      status: "new",
-      timestamp: Date.now(),
-      member: "",
+      status: "new", // nyuppgifter får alltid status "new"
+      timestamp: Date.now(), // används för sortering eller historik
+      member: "", // tilldelas senare
     };
 
-    //const db = getDatabase();
+    // Skickar uppgiften till Firebase Realtime Database
     push(assignmentsRef, newTask)
       .then(() => {
+        // Återställer fält efter lyckad lagring
         setAssignment("");
         setCategory("ux");
-        setIsOpen(false); // stäng modal efter sparat
+        setIsOpen(false); // stänger modal
       })
       .catch(() => {
         console.error("Firebase error");
@@ -41,6 +44,7 @@ const AddTask = () => {
 
   return (
     <>
+      {/* Öppnar modal för att lägga till uppgift */}
       <button onClick={() => setIsOpen(true)}>+ Lägg till uppgift</button>
 
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>

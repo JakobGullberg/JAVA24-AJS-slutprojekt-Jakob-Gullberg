@@ -1,11 +1,12 @@
 import React from "react";
 
 const SortFilter = ({ filter, setFilter }) => {
+  // Hanterar alla sorterings- och filterändringar
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "sortCombined") {
-      // Hantera kombinerad sortering
+      // Hantera kombinerad sorteringlogik
       let sortTitle = "";
       let sortTime = "";
 
@@ -22,13 +23,14 @@ const SortFilter = ({ filter, setFilter }) => {
 
       return;
     }
-
+    // Hanterar vanliga filterfält (medlem, kategori)
     setFilter((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
+  //  Visar rätt kombinerad sortering i dropdown
   const currentSortValue =
     filter.sortTitle === "asc"
       ? "title-asc"
@@ -95,7 +97,7 @@ const SortFilter = ({ filter, setFilter }) => {
         </select>
       </div>
 
-      {/* Sammanfattning */}
+      {/*  Visar aktivt filter/sortering */}
       <div
         style={{
           marginTop: "1rem",

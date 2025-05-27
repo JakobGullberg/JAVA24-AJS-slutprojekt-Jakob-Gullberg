@@ -3,10 +3,11 @@ import { update, child } from "firebase/database";
 import { assignmentsRef } from "../firebase/config";
 
 const AssignTask = ({ tasks = [], members = [], setMessage, onOpenModal }) => {
+  // Tilldelar en medlem till uppgift och uppdaterar status till "in progress"
   const handleAssign = (taskId, member) => {
-    //const db = getDatabase();
+   
     const taskRef = child(assignmentsRef, `/${taskId}`)
-    // const taskRef = ref(getDatabase, `assignments/${taskId}`);
+    
 
     update(taskRef, {
       member: member.name,
@@ -23,8 +24,11 @@ const AssignTask = ({ tasks = [], members = [], setMessage, onOpenModal }) => {
 
   return (
     <div>
+        {/* Visar fallback-meddelande om inga uppgifter finns */}
         {tasks.length === 0 && <p>Inga nya uppgifter att visa.</p>}
+
         {tasks.map((task) => {
+           // Filtrerar medlemmar som har samma roll som uppgiftens kategori
         const eligibleMembers = members.filter(
           (member) => member.role === task.category
         );
@@ -42,6 +46,7 @@ const AssignTask = ({ tasks = [], members = [], setMessage, onOpenModal }) => {
               {new Date(task.timestamp).toLocaleString()}
             </p>
 
+            {/* Öppnar redigeringsmodal */}
             <button onClick={() => onOpenModal?.(task)}>Redigera</button>
 
 

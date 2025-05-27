@@ -5,14 +5,14 @@ import { assignmentsRef } from "../firebase/config";
 const DeleteFinishedTask = ({ tasks = [], setMessage, onOpenModal }) => {
 
   const handleDelete = (taskId) => {
+    // Bekräftelse innan uppgift tas bort permanent
     const confirmDelete = window.confirm("Vill du verkligen radera denna uppgift?");
     if (!confirmDelete) return;
 
-    //const db = getDatabase();
+      // Hitta referensen till specifik uppgift i databasen
         const taskRef = child(assignmentsRef, `/${taskId}`)
     
-    // const taskRef = ref(getDatabase, `assignments/${taskId}`);
-
+     // Tar bort uppgift från Firebase
     remove(taskRef)
       .then(() => {
         setMessage?.("✅ Uppgift raderad");
@@ -25,7 +25,9 @@ const DeleteFinishedTask = ({ tasks = [], setMessage, onOpenModal }) => {
 
   return (
     <div>
+       {/* Visa fallback om det inte finns färdiga uppgifter */}
       {tasks.length === 0 && <p>Inga färdiga uppgifter att visa.</p>}
+      
       {tasks.map((task) => (
         <div key={task.id} className="task-card">
           <p>

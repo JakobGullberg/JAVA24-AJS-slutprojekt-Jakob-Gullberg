@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 import { push } from "firebase/database";
 import { membersRef } from "../firebase/config";
-import { Modal } from "./Modal"; // 🧠 din återanvändbara modal
+import { Modal } from "./Modal"; // återanvändbara modal
 
 const AddTeamMember = () => {
-  const [name, setName] = useState("");
-  const [role, setRole] = useState("ux");
-  const [error, setError] = useState("");
-  const [isOpen, setIsOpen] = useState(false); // 🔓 styr modalen
+  const [name, setName] = useState(""); // Medlemens namn
+  const [role, setRole] = useState("ux"); // Roll i teamet
+  const [error, setError] = useState(""); //  Visar valideringsfel
+  const [isOpen, setIsOpen] = useState(false); // styr modalen
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
+    // Validera att namn har fyllts i
     if (!name.trim()) {
       setError("Du måste skriva in ett namn.");
       return;
@@ -20,12 +21,14 @@ const AddTeamMember = () => {
 
     const newMember = { name, role };
 
-   //const db = getDatabase();
+   
+   // Pushar medlem till Firebase Realtime Database
     push(membersRef, newMember)
       .then(() => {
+        //  Nollställ formuläret efter att ha sparat
         setName("");
         setRole("ux");
-        setIsOpen(false); // stäng modal vid framgång
+        setIsOpen(false); // stänger modal vid framgång
       })
       .catch(() => {
         console.error("Firebase error");
@@ -56,6 +59,7 @@ const AddTeamMember = () => {
 
           <button type="submit">Lägg till</button>
 
+          {/*  Felmeddelande visas vid valideringsfel eller sparfel */}
           {error && <p style={{ color: "red" }}>{error}</p>}
         </form>
       </Modal>

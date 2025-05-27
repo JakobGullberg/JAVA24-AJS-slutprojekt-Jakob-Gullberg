@@ -4,11 +4,14 @@ import { assignmentsRef } from "../firebase/config";
 
 
 const MarkTaskFinished = ({ tasks = [], setMessage, onOpenModal }) => {
+  //  Uppdaterar statusen på en uppgift till "finished"
+
   const handleFinish = (taskId) => {
-    // const db = getDatabase();
-        const taskRef = child(assignmentsRef, `/${taskId}`)
+  
+      // Hämta referens till rätt uppgift i Firebase
+       const taskRef = child(assignmentsRef, `/${taskId}`)
     
-    // const taskRef = ref(getDatabase, `assignments/${taskId}`);
+   
 
     update(taskRef, {
       status: "finished",
@@ -24,7 +27,9 @@ const MarkTaskFinished = ({ tasks = [], setMessage, onOpenModal }) => {
 
   return (
     <div>
+      {/* Visa fallback om det inte finns några uppgifter */}
       {tasks.length === 0 && <p>Inga uppgifter att visa.</p>}
+      
       {tasks.map((task) => (
         <div key={task.id} className="task-card">
           <p>

@@ -1,5 +1,7 @@
 import React from "react";
 
+
+// Stil för hela overlayen (bakgrund + centrerad modal)
 const overlayStyle = {
   position: "fixed",
   top: 0,
@@ -13,6 +15,7 @@ const overlayStyle = {
   zIndex: 999,
 };
 
+// Själva modalens "kort"
 const modalStyle = {
   backgroundColor: "#fff",
   padding: "2rem",
@@ -23,6 +26,7 @@ const modalStyle = {
   position: "relative",
 };
 
+// Stäng-knappens stil (uppe till höger)
 const closeButtonStyle = {
   position: "absolute",
   top: "0.5rem",
@@ -35,8 +39,10 @@ const closeButtonStyle = {
 };
 
 const Modal = ({ isOpen, onClose, children }) => {
+  // Rendera inget om modal inte ska visas
   if (!isOpen) return null;
 
+  // Om användaren klickar utanför modalen (på overlay) → stäng
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
