@@ -96,6 +96,7 @@ const TaskBoard = () => {
     { title: "IN PROGRESS", status: "in progress", Component: MarkTaskFinished },
     { title: "FINISHED", status: "finished", Component: DeleteFinishedTask },
   ];
+  const isAssignModal = selectedTask?.status === "new";
 
   const handleOpenModal = (task) => {
     setSelectedTask(task);
@@ -165,19 +166,21 @@ const TaskBoard = () => {
               <option value="backend">Backend</option>
             </select>
 
-            <select
-              value={editMember}
-              onChange={(e) => setEditMember(e.target.value)}
-            >
-              <option value="">Ingen</option>
-              {members
-                .filter((m) => m.role === editCategory)
-                .map((m) => (
-                  <option key={m.id} value={m.name}>
-                    {m.name}
-                  </option>
-                ))}
-            </select>
+            {!isAssignModal && (
+              <select
+                value={editMember}
+                onChange={(e) => setEditMember(e.target.value)}
+              >
+                <option value="">Ingen</option>
+                {members
+                  .filter((m) => m.role === editCategory)
+                  .map((m) => (
+                    <option key={m.id} value={m.name}>
+                      {m.name}
+                    </option>
+                  ))}
+              </select>
+            )}
 
             <button type="submit">Spara ändringar</button>
           </form>
