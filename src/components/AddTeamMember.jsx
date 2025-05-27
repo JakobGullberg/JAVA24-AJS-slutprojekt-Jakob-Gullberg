@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getDatabase, push } from "firebase/database";
+import { push } from "firebase/database";
 import { membersRef } from "../firebase/config";
 import { Modal } from "./Modal"; // 🧠 din återanvändbara modal
 
@@ -20,7 +20,7 @@ const AddTeamMember = () => {
 
     const newMember = { name, role };
 
-    const db = getDatabase();
+   //const db = getDatabase();
     push(membersRef, newMember)
       .then(() => {
         setName("");

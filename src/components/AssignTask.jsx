@@ -1,10 +1,12 @@
 import React from "react";
-import { getDatabase, update, ref } from "firebase/database";
+import { update, child } from "firebase/database";
+import { assignmentsRef } from "../firebase/config";
 
 const AssignTask = ({ tasks = [], members = [], setMessage, onOpenModal }) => {
   const handleAssign = (taskId, member) => {
-    const db = getDatabase();
-    const taskRef = ref(db, `assignments/${taskId}`);
+    //const db = getDatabase();
+    const taskRef = child(assignmentsRef, `/${taskId}`)
+    // const taskRef = ref(getDatabase, `assignments/${taskId}`);
 
     update(taskRef, {
       member: member.name,

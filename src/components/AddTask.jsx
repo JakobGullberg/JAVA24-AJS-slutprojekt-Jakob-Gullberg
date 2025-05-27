@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getDatabase, push } from "firebase/database";
+import { push } from "firebase/database";
 import { assignmentsRef } from "../firebase/config";
 import { Modal } from "./Modal"; 
 
@@ -26,7 +26,7 @@ const AddTask = () => {
       member: "",
     };
 
-    const db = getDatabase();
+    //const db = getDatabase();
     push(assignmentsRef, newTask)
       .then(() => {
         setAssignment("");

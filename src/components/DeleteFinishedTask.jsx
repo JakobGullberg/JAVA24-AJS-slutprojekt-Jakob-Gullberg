@@ -1,5 +1,6 @@
 import React from "react";
-import { getDatabase, ref, remove } from "firebase/database";
+import { getDatabase, ref, remove, child } from "firebase/database";
+import { assignmentsRef } from "../firebase/config";
 
 const DeleteFinishedTask = ({ tasks = [], setMessage, onOpenModal }) => {
 
@@ -7,8 +8,10 @@ const DeleteFinishedTask = ({ tasks = [], setMessage, onOpenModal }) => {
     const confirmDelete = window.confirm("Vill du verkligen radera denna uppgift?");
     if (!confirmDelete) return;
 
-    const db = getDatabase();
-    const taskRef = ref(db, `assignments/${taskId}`);
+    //const db = getDatabase();
+        const taskRef = child(assignmentsRef, `/${taskId}`)
+    
+    // const taskRef = ref(getDatabase, `assignments/${taskId}`);
 
     remove(taskRef)
       .then(() => {

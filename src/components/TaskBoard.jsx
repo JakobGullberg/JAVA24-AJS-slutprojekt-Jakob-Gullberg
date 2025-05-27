@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getDatabase, onValue, update, ref } from "firebase/database";
+import { getDatabase, onValue, update, ref, child } from "firebase/database";
 import { assignmentsRef, membersRef } from "../firebase/config";
 
 import { AssignTask } from "./AssignTask";
@@ -34,9 +34,9 @@ const TaskBoard = () => {
   });
 
   useEffect(() => {
-    const db = getDatabase();
+    // const db = getDatabase();
 
-    onValue(assignmentsRef, (snapshot) => {
+    const unsubscribeAssignments = onValue(assignmentsRef, (snapshot) => {
       const data = snapshot.val() || {};
       const allTasks = Object.entries(data).map(([id, task]) => ({
         id,
@@ -45,7 +45,7 @@ const TaskBoard = () => {
       setTasks(allTasks);
     });
 
-    onValue(membersRef, (snapshot) => {
+    const unsubscribeMembers = onValue(membersRef, (snapshot) => {
       const data = snapshot.val() || {};
       const memberList = Object.entries(data).map(([id, member]) => ({
         id,
@@ -53,6 +53,10 @@ const TaskBoard = () => {
       }));
       setMembers(memberList);
     });
+    return ()=>{
+        unsubscribeMembers();
+        unsubscribeAssignments();
+    }
   }, []);
 
   const filteredAndSortedTasks = tasks
@@ -110,8 +114,10 @@ const TaskBoard = () => {
     e.preventDefault();
     if (!selectedTask) return;
 
-    const db = getDatabase();
-    const taskRef = ref(db, `assignments/${selectedTask.id}`);
+    //const db = getDatabase();
+        const taskRef = child(assignmentsRef, `/${taskId}`)
+    
+    // const taskRef = ref(getDatabase, `assignments/${selectedTask.id}`);
 
     update(taskRef, {
       assignment: editTitle,
@@ -145,7 +151,7 @@ const TaskBoard = () => {
         </div>
       )}
 
-      
+
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
         {selectedTask && (

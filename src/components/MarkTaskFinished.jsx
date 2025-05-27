@@ -1,10 +1,14 @@
 import React from "react";
-import { getDatabase, update, ref } from "firebase/database";
+import { getDatabase, update, ref, child } from "firebase/database";
+import { assignmentsRef } from "../firebase/config";
+
 
 const MarkTaskFinished = ({ tasks = [], setMessage, onOpenModal }) => {
   const handleFinish = (taskId) => {
-    const db = getDatabase();
-    const taskRef = ref(db, `assignments/${taskId}`);
+    // const db = getDatabase();
+        const taskRef = child(assignmentsRef, `/${taskId}`)
+    
+    // const taskRef = ref(getDatabase, `assignments/${taskId}`);
 
     update(taskRef, {
       status: "finished",
