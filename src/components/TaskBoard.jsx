@@ -1,36 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { getDatabase, onValue, update, ref, child } from "firebase/database";
+import { update, child, onValue } from "firebase/database";
 import { assignmentsRef, membersRef } from "../firebase/config";
 
-import { AssignTask } from "./AssignTask";
-import { MarkTaskFinished } from "./MarkTaskFinished";
-import { DeleteFinishedTask } from "./DeleteFinishedTask";
+import { NewTaskList } from "./NewTaskList";
+import { InProgressTaskList } from "./InProgressTaskList";
+import { FinishedTaskList } from "./FinishedTaskList";
 import { SortFilter } from "./SortFilter";
 import { Modal } from "./Modal";
 
+/**
+ * TaskBoard är huvudkomponenten som hanterar hela flödet av uppgifter.
+ * Den hämtar data, filtrerar och sorterar, visar uppdelade kolumner,
+ * samt tillåter redigering genom modal.
+ */
 const TaskBoard = () => {
-  //  Uppgifter och användare (hämtas från databas)
   const [tasks, setTasks] = useState([]);
   const [members, setMembers] = useState([]);
-
-  const [message, setMessage] = useState(""); //  Tillfälligt meddelande (feedback)
-  const [selectedTask, setSelectedTask] = useState(null); //  För redigering
+  const [message, setMessage] = useState("");
+  const [selectedTask, setSelectedTask] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   const [editTitle, setEditTitle] = useState("");
   const [editCategory, setEditCategory] = useState("");
   const [editMember, setEditMember] = useState("");
 
-  //  Visar feedback i 3 sekunder
-  useEffect(() => {
-    if (!message) return;
-    const timer = setTimeout(() => {
-      setMessage("");
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [message]);
-
-  // Filter + sorteringslogik
   const [filter, setFilter] = useState({
     member: "",
     category: "",
@@ -39,8 +32,6 @@ const TaskBoard = () => {
   });
 
   useEffect(() => {
-    //  WebSocket-koppling via onValue – här sker realtidslyssning
-
     const unsubscribeAssignments = onValue(assignmentsRef, (snapshot) => {
       const data = snapshot.val() || {};
       const allTasks = Object.entries(data).map(([id, task]) => ({
@@ -58,23 +49,27 @@ const TaskBoard = () => {
       }));
       setMembers(memberList);
     });
-    return ()=>{
-      membersRef.off?.();     // Kopplar bort lyssnare korrekt (Detta verkade lösa mitt problem med websockets, men det gjorde det ej)
+
+    return () => {
+      membersRef.off?.();
       assignmentsRef.off?.();
-    }
+    };
   }, []);
 
-  //  Filtrering + sortering i UI enligt användarens val
+  useEffect(() => {
+    if (!message) return;
+    const timer = setTimeout(() => setMessage(""), 3000);
+    return () => clearTimeout(timer);
+  }, [message]);
+
   const filteredAndSortedTasks = tasks
     .filter((task) => {
       const matchesMember = filter.member
         ? task.member?.toLowerCase().includes(filter.member.toLowerCase())
         : true;
-
       const matchesCategory = filter.category
         ? task.category === filter.category
         : true;
-
       return matchesMember && matchesCategory;
     })
     .sort((a, b) => {
@@ -95,24 +90,15 @@ const TaskBoard = () => {
       return 0;
     });
 
-    //  Uppdelning i kolumner beroende på status
+  // Grupperar uppgifter baserat på status för att kunna visa dem i olika kolumner
   const groupedTasks = {
     new: filteredAndSortedTasks.filter((task) => task.status === "new"),
     "in progress": filteredAndSortedTasks.filter((task) => task.status === "in progress"),
     finished: filteredAndSortedTasks.filter((task) => task.status === "finished"),
   };
 
-  // Vilken komponent som ska renderas för varje kolumn
-  const taskSections = [
-    { title: "NEW", status: "new", Component: AssignTask },
-    { title: "IN PROGRESS", status: "in progress", Component: MarkTaskFinished },
-    { title: "FINISHED", status: "finished", Component: DeleteFinishedTask },
-  ];
-
-  //  Används för att veta om medlem ska kunna väljas i modal
   const isAssignModal = selectedTask?.status === "new";
 
-  //  Öppnar modal och fyll fälten med vald uppgiftsdata
   const handleOpenModal = (task) => {
     setSelectedTask(task);
     setEditTitle(task.assignment);
@@ -121,14 +107,11 @@ const TaskBoard = () => {
     setModalOpen(true);
   };
 
-  // Uppdaterar uppgift i Firebase
   const handleEditSubmit = (e) => {
     e.preventDefault();
     if (!selectedTask) return;
 
-   
-      const taskRef = child(assignmentsRef, `/${selectedTask.id}`)
-    
+    const taskRef = child(assignmentsRef, `/${selectedTask.id}`);
 
     update(taskRef, {
       assignment: editTitle,
@@ -144,6 +127,7 @@ const TaskBoard = () => {
       });
   };
 
+    // UI-sektionen: filtermeny, feedback, redigeringsmodal och tre uppgiftskolumner
   return (
     <div>
       <SortFilter filter={filter} setFilter={setFilter} />
@@ -162,8 +146,6 @@ const TaskBoard = () => {
         </div>
       )}
 
-
-      {/*  Modal för att redigera uppgift */}
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
         {selectedTask && (
           <form onSubmit={handleEditSubmit}>
@@ -185,10 +167,9 @@ const TaskBoard = () => {
               <option value="backend">Backend</option>
             </select>
 
-            
+             {/* // Används för att avgöra om vi ska visa fält för att tilldela medlem i redigeringsmodalen, 
+             // då newtask inte behöver tilldelas*/}
             {!isAssignModal && (
-              // Visar bara medlem-val om uppgiften inte är ny –
-              // nya uppgifter tilldelas först via AssignTask-kolumnen
               <select
                 value={editMember}
                 onChange={(e) => setEditMember(e.target.value)}
@@ -209,23 +190,43 @@ const TaskBoard = () => {
         )}
       </Modal>
 
-        {/*  Tre kolumner: new, in progress, finished */}
+      {/* Kolumner: New / In Progress / Finished */}
       <div className="task-board">
-        {taskSections.map(({ title, status, Component }) => (
-          <div key={status} className="task-column">
-            <h2>{title}</h2>
-            <Component
-              tasks={groupedTasks[status]}
-              members={members}
-              setMessage={setMessage}
-              onOpenModal={handleOpenModal}
-            />
-          </div>
-        ))}
+        {/* Renderar lista med nya (otilldelade) uppgifter */}
+        <div className="task-column">
+          <h2>NEW</h2>
+          <NewTaskList
+            tasks={groupedTasks["new"]}
+            members={members}
+            setMessage={setMessage}
+            onOpenModal={handleOpenModal}
+          />
+        </div>
+
+        {/* Renderar lista med pågående uppgifter (kan markeras som klara) */}
+        <div className="task-column">
+          <h2>IN PROGRESS</h2>
+          <InProgressTaskList
+            tasks={groupedTasks["in progress"]}
+            members={members}
+            setMessage={setMessage}
+            onOpenModal={handleOpenModal}
+          />
+        </div>
+
+        {/* Renderar lista med färdiga uppgifter (kan raderas) */}
+        <div className="task-column">
+          <h2>FINISHED</h2>
+          <FinishedTaskList
+            tasks={groupedTasks["finished"]}
+            members={members}
+            setMessage={setMessage}
+            onOpenModal={handleOpenModal}
+          />
+        </div>
       </div>
     </div>
   );
 };
-
 
 export { TaskBoard };

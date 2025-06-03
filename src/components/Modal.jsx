@@ -26,7 +26,6 @@ const modalStyle = {
   position: "relative",
 };
 
-// Stäng-knappens stil (uppe till höger)
 const closeButtonStyle = {
   position: "absolute",
   top: "0.5rem",

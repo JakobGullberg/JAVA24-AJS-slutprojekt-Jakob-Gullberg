@@ -3,12 +3,17 @@ import { push } from "firebase/database";
 import { assignmentsRef } from "../firebase/config";
 import { Modal } from "./Modal"; 
 
+/*
+ * Komponent som visar en knapp för att lägga till en ny uppgift via en modal.
+ * Innehåller formulär med validering och skickar uppgiften till Firebase Realtime Database.
+ */
+
 const AddTask = () => {
 // Lokala tillstånd för inputfält, felmeddelanden och modalens synlighet
   const [assignment, setAssignment] = useState("");
   const [category, setCategory] = useState("ux");
   const [error, setError] = useState("");
-  const [isOpen, setIsOpen] = useState(false); // styr modalens visning
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -25,7 +30,7 @@ const AddTask = () => {
       category,
       status: "new", // nyuppgifter får alltid status "new"
       timestamp: Date.now(), // används för sortering eller historik
-      member: "", // tilldelas senare
+      member: "", 
     };
 
     // Skickar uppgiften till Firebase Realtime Database
@@ -44,7 +49,6 @@ const AddTask = () => {
 
   return (
     <>
-      {/* Öppnar modal för att lägga till uppgift */}
       <button onClick={() => setIsOpen(true)}>+ Lägg till uppgift</button>
 
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
