@@ -19,7 +19,6 @@ const AddTask = () => {
     e.preventDefault();
     setError("");
 
-     // Kontrollera att användaren inte skickar in tom uppgift
     if (!assignment.trim()) {
       setError("Du måste skriva in en uppgift.");
       return;
@@ -28,18 +27,18 @@ const AddTask = () => {
     const newTask = {
       assignment,
       category,
-      status: "new", // nyuppgifter får alltid status "new"
+      status: "new",
       timestamp: Date.now(), // används för sortering eller historik
       member: "", 
     };
 
-    // Skickar uppgiften till Firebase Realtime Database
+   
     push(assignmentsRef, newTask)
       .then(() => {
         // Återställer fält efter lyckad lagring
         setAssignment("");
         setCategory("ux");
-        setIsOpen(false); // stänger modal
+        setIsOpen(false);
       })
       .catch(() => {
         console.error("Firebase error");
