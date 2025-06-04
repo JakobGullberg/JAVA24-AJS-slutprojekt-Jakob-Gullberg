@@ -167,7 +167,7 @@ const TaskBoard = () => {
               <option value="backend">Backend</option>
             </select>
 
-             {/* // Används för att avgöra om vi ska visa fält för att tilldela medlem i redigeringsmodalen, 
+             {/* // Används för att avgöra om den ska visa fält för att tilldela medlem i redigeringsmodalen, 
              // då newtask inte behöver tilldelas*/}
             {!isAssignModal && (
               <select

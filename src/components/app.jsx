@@ -1,5 +1,5 @@
-import {AddTeamMember} from "./AddTeamMember";
-import {AddTask} from "./AddTask";
+import {AddTeamMember} from "./TeamMemberForm";
+import {AddTask} from "./TaskCreator";
 //import { AssignTask } from "./AssignTask";
 //mport { MarkTaskFinished } from "./MarkTaskFinished";
 //import { DeleteFinishedTask } from "./DeleteFinishedTask";
@@ -10,7 +10,7 @@ export function App() {
     <div>
       <h1>Scrum Board</h1>
       <AddTeamMember />
-      <AddTask />
+      <AddTask/>
       <TaskBoard/>
     </div>
   );

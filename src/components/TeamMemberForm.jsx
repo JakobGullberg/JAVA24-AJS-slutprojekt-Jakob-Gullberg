@@ -11,8 +11,6 @@ import { Modal } from "./Modal";
  */
 
 const AddTeamMember = () => {
-  // Lokalt state för formulärdata och modalfönster
-
   const [name, setName] = useState(""); 
   const [role, setRole] = useState("ux"); 
   const [error, setError] = useState(""); 
@@ -22,7 +20,6 @@ const AddTeamMember = () => {
     e.preventDefault();
     setError("");
 
-    // Validera att namn har fyllts i
     if (!name.trim()) {
       setError("Du måste skriva in ett namn.");
       return;
